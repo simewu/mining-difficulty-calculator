@@ -26,6 +26,10 @@
 				margin: 0;
 				list-style: none;
 			}
+
+			#updateDifficulty, #updateDifficulty2 {
+				width: 100%;
+			}
 		</style>
 	</head>
 	<body>
@@ -41,12 +45,16 @@
 			</ul>
 			
 			<hr>
-			<ul id='checkboxes' onchange='updateTotal()'></ul>
+			<ul id='checkboxes' onchange='update()'></ul>
 			<hr>
+			<button id='updateDifficulty' onclick='updateTotal()' disabled>Update difficulty</button>
 			<ul style='list-style: none;'>
-				<li>Total = <span id='totalHashes'></span></li>
 				<br>
-				<li>P(hash is block) = <span id='probability'></span></li>
+				<li>Total = <span id='totalHashes'>0</span> H/s</li>
+				<br>
+				<li>P(hash is block) = <span id='probability'>0</span></li>
+				<br>
+				<li>Block rate = <span id='blockRate'>0</span> minutes</li>
 			</ul>
 		</div>
 		<br>
@@ -62,12 +70,15 @@
 			</ul>
 			
 			<hr>
-			<ul id='checkboxes2' onchange='updateTotal2()'></ul>
+			<ul id='checkboxes2' onchange='update2()'></ul>
 			<hr>
+			<button id='updateDifficulty2' onclick='updateTotal2()' disabled>Update difficulty</button>
 			<ul style='list-style: none;'>
-				<li>Total = <span id='totalHashes2'></span></li>
+				<li>Total = <span id='totalHashes2'>0</span> H/s</li>
 				<br>
-				<li>P(hash is block) = <span id='probability2'></span></li>
+				<li>P(hash is block) = <span id='probability2'>0</span></li>
+				<br>
+				<li>Block rate = <span id='blockRate2'>0</span> minutes</li>
 			</ul>
 			
 		</div>
@@ -79,6 +90,10 @@
 		let totalHashes2 = document.getElementById('totalHashes2');
 		let probability = document.getElementById('probability');
 		let probability2 = document.getElementById('probability2');
+		let blockRate = document.getElementById('blockRate');
+		let blockRate2 = document.getElementById('blockRate2');
+		let updateDifficulty = document.getElementById('updateDifficulty');
+		let updateDifficulty2 = document.getElementById('updateDifficulty2');
 
 		addCheckbox(10);
 		addCheckbox(10);
@@ -100,7 +115,8 @@
 		addCheckbox2(50);
 		updateTotal();
 
-		function addCheckbox(power, checkboxes = window.checkboxes) {
+		function addCheckbox(power,
+			checkboxes = window.checkboxes) {
 			let id = Math.random().toString()
 			let html = '';
 			html += '<li>';
@@ -108,27 +124,22 @@
 			html += '<label for="' + id + '">Miner (' + power + ' H/s) <span>= 0 BTC/day</span</label>';
 			html += '</li>';
 			checkboxes.innerHTML += html;
-			updateTotal();
+			update();
 		}
 
 		function addCheckbox2(power) {
 			addCheckbox(power, checkboxes2);
 		}
-
-		function updateTotal(
+ 
+		function update(
 			checkboxes = window.checkboxes,
 			totalHashes = window.totalHashes,
-			probability = window.probability) {
-			let total = 0;
+			probability = window.probability,
+			blockRate = window.blockRate,
+			updateDifficulty = window.updateDifficulty) {
+			let total = parseFloat(totalHashes.innerText);
 			let lis = checkboxes.childNodes;
-			for(let li of lis) {
-				if(li.nodeName != 'LI') continue;
-				let liChildren = li.childNodes;
-				let checkbox = liChildren[0];
-				if(checkbox.checked == false) continue;
-				let num = parseFloat(checkbox.value);
-				total += num;
-			}
+			
 			for(let li of lis) {
 				if(li.nodeName != 'LI') continue;
 				let liChildren = li.childNodes;
@@ -142,16 +153,56 @@
 				
 				liChildren[1].childNodes[1].innerText = '= ' + income + ' BTC/day';
 			}
-			totalHashes.innerText = total + ' H/s';
 
 			let hashesPer10Mins = total * 60 * 10;
 			let difficulty = 1 / hashesPer10Mins;
 
 			probability.innerText = difficulty + '%';
+
+			// Computing the block rate
+			let newTotal = 0;
+			for(let li of lis) {
+				if(li.nodeName != 'LI') continue;
+				let liChildren = li.childNodes;
+				let checkbox = liChildren[0];
+				if(checkbox.checked == false) continue;
+				let num = parseFloat(checkbox.value);
+				newTotal += num;
+			}
+			blockRate.innerText = (total / newTotal * 10);
+
+
+
+			updateDifficulty.disabled = false;
+		}
+
+		function update2() {
+			update(checkboxes2, totalHashes2, probability2, blockRate2, updateDifficulty2);
+		}
+
+		function updateTotal(
+			checkboxes = window.checkboxes,
+			totalHashes = window.totalHashes,
+			probability = window.probability,
+			blockRate = window.blockRate,
+			updateDifficulty = window.updateDifficulty) {
+			let total = 0;
+			let lis = checkboxes.childNodes;
+			for(let li of lis) {
+				if(li.nodeName != 'LI') continue;
+				let liChildren = li.childNodes;
+				let checkbox = liChildren[0];
+				if(checkbox.checked == false) continue;
+				let num = parseFloat(checkbox.value);
+				total += num;
+			}
+			totalHashes.innerText = total;
+			update(checkboxes, totalHashes, probability, blockRate, updateDifficulty);
+			updateDifficulty.disabled = true;
 		}
 
 		function updateTotal2() {
-			updateTotal(checkboxes2, totalHashes2, probability2);
+			updateTotal(checkboxes2, totalHashes2, probability2, blockRate2, updateDifficulty2);
 		}
 	</script>
 </html>
