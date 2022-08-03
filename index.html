@@ -1,0 +1,157 @@
+<!DOCTYLE html>
+<html>
+	<head>
+		<meta charset='utf-8'/>
+		<meta name='viewport' content='user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1'>
+		<title>Miner Difficulty Attack</title>
+		<style>
+
+			body {
+				background-color: #000;
+				color: #fff;
+				font-family: Arial, Helvetica, sans-serif;
+			}
+
+			.wrapper {
+				background-color: #222;
+				padding: 20px;
+				margin: 0 auto;
+				max-width: 800px;
+				min-width: 200px;
+				border-radius: 8px;
+				border: 1px solid #fff;
+			}
+
+			#checkboxes, #checkboxes2 {
+				margin: 0;
+				list-style: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div class='wrapper'>
+			<center><h4>Mining Difficulty Calculator 1</h4></center>
+			
+			<ul style='list-style: none;'>
+				<li>
+					Add a miner
+					<input id='addMinerValue' type='number' value='150'>
+					<button onclick='addCheckbox(addMinerValue.value)'>Add</button>
+				</li>
+			</ul>
+			
+			<hr>
+			<ul id='checkboxes' onchange='updateTotal()'></ul>
+			<hr>
+			<ul style='list-style: none;'>
+				<li>Total = <span id='totalHashes'></span></li>
+				<br>
+				<li>P(hash is block) = <span id='probability'></span></li>
+			</ul>
+		</div>
+		<br>
+		<div class='wrapper'>
+			<center><h4>Mining Difficulty Calculator 2</h4></center>
+			
+			<ul style='list-style: none;'>
+				<li>
+					Add a miner
+					<input id='addMinerValue2' type='number' value='150'>
+					<button onclick='addCheckbox2(addMinerValue2.value)'>Add</button>
+				</li>
+			</ul>
+			
+			<hr>
+			<ul id='checkboxes2' onchange='updateTotal2()'></ul>
+			<hr>
+			<ul style='list-style: none;'>
+				<li>Total = <span id='totalHashes2'></span></li>
+				<br>
+				<li>P(hash is block) = <span id='probability2'></span></li>
+			</ul>
+			
+		</div>
+	</body>
+	<script type='text/javascript'>
+		let checkboxes = document.getElementById('checkboxes');
+		let checkboxes2 = document.getElementById('checkboxes2');
+		let totalHashes = document.getElementById('totalHashes');
+		let totalHashes2 = document.getElementById('totalHashes2');
+		let probability = document.getElementById('probability');
+		let probability2 = document.getElementById('probability2');
+
+		addCheckbox(10);
+		addCheckbox(10);
+		addCheckbox(10);
+		addCheckbox(10);
+		addCheckbox(10);
+		addCheckbox(20);
+		addCheckbox(30);
+		addCheckbox(40);
+		addCheckbox(50);
+		addCheckbox2(10);
+		addCheckbox2(10);
+		addCheckbox2(10);
+		addCheckbox2(10);
+		addCheckbox2(10);
+		addCheckbox2(20);
+		addCheckbox2(30);
+		addCheckbox2(40);
+		addCheckbox2(50);
+		updateTotal();
+
+		function addCheckbox(power, checkboxes = window.checkboxes) {
+			let id = Math.random().toString()
+			let html = '';
+			html += '<li>';
+			html += '<input id="' + id + '" type="checkbox" value="' + power + '">';
+			html += '<label for="' + id + '">Miner (' + power + ' H/s) <span>= 0 BTC/day</span</label>';
+			html += '</li>';
+			checkboxes.innerHTML += html;
+			updateTotal();
+		}
+
+		function addCheckbox2(power) {
+			addCheckbox(power, checkboxes2);
+		}
+
+		function updateTotal(
+			checkboxes = window.checkboxes,
+			totalHashes = window.totalHashes,
+			probability = window.probability) {
+			let total = 0;
+			let lis = checkboxes.childNodes;
+			for(let li of lis) {
+				if(li.nodeName != 'LI') continue;
+				let liChildren = li.childNodes;
+				let checkbox = liChildren[0];
+				if(checkbox.checked == false) continue;
+				let num = parseFloat(checkbox.value);
+				total += num;
+			}
+			for(let li of lis) {
+				if(li.nodeName != 'LI') continue;
+				let liChildren = li.childNodes;
+				let checkbox = liChildren[0];
+
+				let p = 0;
+				if(checkbox.checked) {
+					p = parseFloat(checkbox.value) / total;
+				}
+				income = 6.25 * p * 6 * 24;
+				
+				liChildren[1].childNodes[1].innerText = '= ' + income + ' BTC/day';
+			}
+			totalHashes.innerText = total + ' H/s';
+
+			let hashesPer10Mins = total * 60 * 10;
+			let difficulty = 1 / hashesPer10Mins;
+
+			probability.innerText = difficulty + '%';
+		}
+
+		function updateTotal2() {
+			updateTotal(checkboxes2, totalHashes2, probability2);
+		}
+	</script>
+</html>
