@@ -138,6 +138,7 @@
 			let total = parseFloat(totalHashes.innerText);
 			let lis = checkboxes.childNodes;
 			
+			let newTotal = 0;
 			for(let li of lis) {
 				if(li.nodeName != 'LI') continue;
 				let liChildren = li.childNodes;
@@ -146,10 +147,12 @@
 				let p = 0;
 				if(checkbox.checked) {
 					p = parseFloat(checkbox.value) / total;
+					newTotal += parseFloat(checkbox.value);
 				}
 				income = 6.25 * p * 6 * 24;
 				
 				liChildren[1].childNodes[1].innerText = '= ' + income + ' BTC/day';
+
 			}
 
 			let hashesPer10Mins = total * 60 * 10;
@@ -158,14 +161,14 @@
 			probability.innerText = difficulty + '%';
 
 			// Computing the block rate
-			let newTotal = 0;
 			for(let li of lis) {
 				if(li.nodeName != 'LI') continue;
 				let liChildren = li.childNodes;
 				let checkbox = liChildren[0];
 				if(checkbox.checked == false) continue;
 				let num = parseFloat(checkbox.value);
-				newTotal += num;
+
+				liChildren[1].childNodes[1].innerText = ' (' + (Math.floor(10000 * 100 * num / newTotal) / 10000) + '%) ' + liChildren[1].childNodes[1].innerText
 			}
 			blockRate.innerText = (total / newTotal * 10);
 
